@@ -29,11 +29,12 @@ hs.window.animationDuration = 0
 --
 -- It searches for application "name" and call "func" for each window object
 --------------------------------------------------------------------------------
+-- Debug. Count of monitors.
 hs.hotkey.bind(cmd_alt, "W", function ()
   hs.notify.new({title="Debug", informativeText=#hs.screen.allScreens()}):send()
 end) 
 
-
+-- Maximize and move Mail, Calendar, Messages and Skype to the laptop screen
 local layouts = {
   {
     name = {"Mail", "Calendar", "Messages", "Skype"},
@@ -42,6 +43,7 @@ local layouts = {
       win:maximize()
     end
   },
+  -- if connected second monitor move Evenote and Slack to this and maximize window
   {
     name = {"Evernote", "Slack"},
     func = function(index, win)
@@ -106,7 +108,7 @@ local layouts = {
     name = "iTerm",
     func = function(index, win)
       if (#hs.screen.allScreens() > 1) then
-        win:moveToScreen(hs.screen.get(second_monitor))
+        win:moveToScreen(hs.screen.get(main_monitor))
       end
 
       if (index == 1) then
@@ -116,111 +118,68 @@ local layouts = {
       end
     end
   },
-  {
-    name = "iOS Simulator",
-    func = function(index, win)
-      if (#hs.screen.allScreens() > 1) then
-        win:moveToScreen(hs.screen.get(second_monitor))
-      end
-
-      local screen = win:screen()
-      local screen_frame = screen:frame()
-      local frame = win:frame()
-      frame.x = screen_frame.w / 2
-      frame.y = screen_frame.y
-      win:setFrame(frame)
-    end
-  },
-  {
-    name = "Genymotion",
-    func = function(index, win)
-      if (#hs.screen.allScreens() > 1) then
-        win:moveToScreen(hs.screen.get(second_monitor))
-      end
-
-      local screen = win:screen()
-      local screen_frame = screen:frame()
-      local frame = win:frame()
-      frame.x = screen_frame.w / 2
-      frame.y = screen_frame.y + 50
-      frame.w = screen_frame.w / 3
-      frame.h = screen_frame.h / 2
-      win:setFrame(frame)
-    end
-  },
-  {
-    name = {"Atom", "Light Table"},
-    func = function(index, win)
-      if (#hs.screen.allScreens() > 1) then
-
-        local allScreens = hs.screen.allScreens()
-        for i, screen in ipairs(allScreens) do
-          if screen:name() == second_monitor then
-            win:moveToScreen(screen)
-          end
-        end
-
-        local screen = win:screen()
-        win:setFrame({
-          x = screen:frame().x,
-          y = hs.screen.minY(screen),
-          w = hs.screen.minWidth(false) + hs.screen.minX(screen),
-          h = hs.screen.minHeight(screen)
-        })
-      else
-        win:maximize()
-      end
-    end
-  },
 }
 
-local closeAll = {
+local closeHome = {
   "Skype",
-  "Messages"
+  "Viber",
+  "Safari"
 }
 
-local openAll = {
+local openHome = {
   "Skype",
-  "Messages"
+  "Viber",
+  "Safari"
 }
-
+local openWorkApp = {
+  "Slack",
+  "Google Chrome",
+  "Mail",
+  "Calendar"
+}
+local closeWorkApp = {
+  "Slack",
+  "Google Chrome",
+  "Mail",
+  "Calendar"
+}
 
 function config()
-  hs.hotkey.bind(cmd_alt, "right", function()
+  hs.hotkey.bind(cmd_alt, "l", function()
     local win = hs.window.focusedWindow()
     win:right()
   end)
 
-  hs.hotkey.bind(cmd_alt, "left", function()
+  hs.hotkey.bind(cmd_alt, "h", function()
     local win = hs.window.focusedWindow()
     win:left()
   end)
-  hs.hotkey.bind(cmd_alt, "up", function()
+  hs.hotkey.bind(cmd_alt, "k", function()
     local win = hs.window.focusedWindow()
     win:up()
   end)
 
-  hs.hotkey.bind(cmd_alt, "down", function()
+  hs.hotkey.bind(cmd_alt, "j", function()
     local win = hs.window.focusedWindow()
     win:down()
   end)
 
-  hs.hotkey.bind(cmd_alt_ctrl, "left", function()
+  hs.hotkey.bind(cmd_alt_ctrl, "h", function()
     local win = hs.window.focusedWindow()
     win:upLeft()
   end)
 
-  hs.hotkey.bind(cmd_alt_ctrl, "down", function()
+  hs.hotkey.bind(cmd_alt_ctrl, "j", function()
     local win = hs.window.focusedWindow()
     win:downLeft()
   end)
 
-  hs.hotkey.bind(cmd_alt_ctrl, "right", function()
+  hs.hotkey.bind(cmd_alt_ctrl, "l", function()
     local win = hs.window.focusedWindow()
     win:downRight()
   end)
 
-  hs.hotkey.bind(cmd_alt_ctrl, "up", function()
+  hs.hotkey.bind(cmd_alt_ctrl, "k", function()
     local win = hs.window.focusedWindow()
     win:upRight()
   end)
@@ -247,7 +206,7 @@ function config()
     end
   end)
 
-  hs.hotkey.bind(cmd_alt_ctrl, "h", function()
+  hs.hotkey.bind(cmd_alt_ctrl, "m", function()
     hs.hints.windowHints()
   end)
 
@@ -272,7 +231,7 @@ function config()
 
   hs.hotkey.bind(cmd_alt_ctrl, "P", function()
     hs.alert.show("Closing")
-    for i,v in ipairs(closeAll) do
+    for i,v in ipairs(closeWork) do
       local app = hs.application(v)
       if (app) then
         if (app.name) then
@@ -287,7 +246,7 @@ function config()
 
   hs.hotkey.bind(cmd_alt_ctrl, "O", function()
     hs.alert.show("Openning")
-    for i,v in ipairs(openAll) do
+    for i,v in ipairs(openWork) do
       hs.alert.show(v)
       hs.application.open(v)
     end
