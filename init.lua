@@ -9,8 +9,11 @@
 --------------------------------------------------------------------------------
 local cmd_alt = {"cmd", "alt"}
 local cmd_alt_ctrl = {"cmd", "alt", "ctrl"}
-local main_monitor = "Color LCD" 
-local second_monitor = "B246WL"
+-- find monitors
+local main_monitor =  hs.screen.allScreens()[1]:name()
+if (#hs.screen.allScreens() > 1) then 
+  local second_monitor =  hs.screen.allScreens()[2]:name()
+end
 
 --------------------------------------------------------------------------------
 -- CONFIGURATIONS
@@ -31,13 +34,15 @@ hs.window.animationDuration = 0
 --------------------------------------------------------------------------------
 -- Debug. Count of monitors.
 hs.hotkey.bind(cmd_alt, "W", function ()
-  hs.notify.new({title="Debug", informativeText=#hs.screen.allScreens()}):send()
+  hs.notify.new({title="Debug. Screen count: ", informativeText=#hs.screen.allScreens()}):send()
+  hs.notify.new({title="Debug. Launch Q", informativeText="Starting"}):send()
+  launchQ()
 end) 
 
 -- Maximize and move Mail, Calendar, Messages and Skype to the laptop screen
 local layouts = {
   {
-    name = {"Mail", "Calendar", "Messages", "Skype"},
+    name = {"Mail", "Calendar", "Messages", "Skype", "Viber"},
     func = function(index, win)
       win:moveToScreen(hs.screen.get(main_monitor))
       win:maximize()
@@ -120,13 +125,13 @@ local layouts = {
   },
 }
 
-local closeHome = {
+local closeHomeApp = {
   "Skype",
   "Viber",
   "Safari"
 }
 
-local openHome = {
+local openHomeApp = {
   "Skype",
   "Viber",
   "Safari"
@@ -135,13 +140,15 @@ local openWorkApp = {
   "Slack",
   "Google Chrome",
   "Mail",
-  "Calendar"
+  "Calendar",
+  "Cisco Anyconnect Secure Mobility Client"
 }
 local closeWorkApp = {
   "Slack",
   "Google Chrome",
   "Mail",
-  "Calendar"
+  "Calendar",
+  "Cisco Anyconnect Secure Mobility Client"
 }
 
 function config()
@@ -230,13 +237,29 @@ function config()
   end)
 
   hs.hotkey.bind(cmd_alt_ctrl, "P", function()
-    hs.alert.show("Closing")
-    for i,v in ipairs(closeWork) do
+    hs.alert.show("Closing work application")
+    for i,v in ipairs(closeWorkApp) do
       local app = hs.application(v)
       if (app) then
-        if (app.name) then
-          hs.alert.show(app:name())
-        end
+        if (app.kill) then
+        app:kill()
+      end
+      end
+    end
+  end)
+
+  hs.hotkey.bind(cmd_alt, "O", function()
+    hs.alert.show("Openning home application")
+    for i,v in ipairs(openHomeApp) do
+      hs.application.open(v)
+    end
+  end)
+
+  hs.hotkey.bind(cmd_alt, "P", function()
+    hs.alert.show("Closing home application")
+    for i,v in ipairs(closeHomeApp) do
+      local app = hs.application(v)
+      if (app) then
         if (app.kill) then
         app:kill()
       end
@@ -245,9 +268,8 @@ function config()
   end)
 
   hs.hotkey.bind(cmd_alt_ctrl, "O", function()
-    hs.alert.show("Openning")
-    for i,v in ipairs(openWork) do
-      hs.alert.show(v)
+    hs.alert.show("Openning work application")
+    for i,v in ipairs(openWorkApp) do
       hs.application.open(v)
     end
   end)
@@ -271,7 +293,12 @@ end
 
 
 
-
+-------------------
+-- TEST
+-------------------
+function launchQ()
+  hs.application.open("Q")  
+end
 
 
 
