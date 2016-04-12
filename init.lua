@@ -9,7 +9,9 @@
 --------------------------------------------------------------------------------
 local cmd_alt = {"cmd", "alt"}
 local cmd_alt_ctrl = {"cmd", "alt", "ctrl"}
+local monitors = hs.screen.allScreens()
 -- find monitors
+
 local main_monitor =  hs.screen.allScreens()[1]:name()
 if (#hs.screen.allScreens() > 1) then 
   local second_monitor =  hs.screen.allScreens()[2]:name()
@@ -242,8 +244,9 @@ function config()
       local app = hs.application(v)
       if (app) then
         if (app.kill) then
-        app:kill()
-      end
+          app:kill()
+        end
+        
       end
     end
   end)
